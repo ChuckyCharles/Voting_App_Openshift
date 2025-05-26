@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voting-app-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: voting-app-backend
+  template:
+    metadata:
+      labels:
+        app: voting-app-backend
+    spec:
+      containers:
+      - name: voting-app-backend
+        image: voting-app-backend:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: voting-app-secrets
+              key: database-url
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: voting-app-secrets
+              key: jwt-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: voting-app-backend
+spec:
+  selector:
+    app: voting-app-backend
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: voting-app-backend
+spec:
+  to:
+    kind: Service
+    name: voting-app-backend
+  port:
+    targetPort: 5000 
