@@ -89,7 +89,7 @@ A modern web-based voting application deployed on OpenShift.
 ## Screenshots
 
 ### Create New Poll
-![Create Poll](screenshots/create_poll.png)
+![Create Poll](screenshots/poll.png)
 
 ### Login Page
 ![Login](screenshots/login.png)
