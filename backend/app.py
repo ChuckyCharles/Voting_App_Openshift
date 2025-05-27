@@ -4,12 +4,13 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from datetime import datetime, timedelta
 import os
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 CORS(app)
 
 # Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///voting.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Charles42@localhost/voting'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your-secret-key')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
@@ -21,7 +22,7 @@ jwt = JWTManager(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
+    password = db.Column(db.String(256), nullable=False)
     votes = db.relationship('Vote', backref='user', lazy=True)
 
 class Poll(db.Model):
@@ -107,6 +108,27 @@ def get_results(poll_id):
         })
     
     return jsonify(results)
+
+@app.route('/api/auth/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    if User.query.filter_by(username=data['username']).first():
+        return jsonify({'message': 'Username already exists'}), 400
+    hashed_password = generate_password_hash(data['password'])
+    user = User(username=data['username'], password=hashed_password)
+    db.session.add(user)
+    db.session.commit()
+    access_token = create_access_token(identity=user.id)
+    return jsonify({'access_token': access_token, 'user': {'id': user.id, 'username': user.username}}), 201
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    user = User.query.filter_by(username=data['username']).first()
+    if not user or not check_password_hash(user.password, data['password']):
+        return jsonify({'message': 'Invalid credentials'}), 401
+    access_token = create_access_token(identity=user.id)
+    return jsonify({'access_token': access_token, 'user': {'id': user.id, 'username': user.username}})
 
 if __name__ == '__main__':
     with app.app_context():

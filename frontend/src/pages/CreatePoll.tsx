@@ -54,7 +54,7 @@ const CreatePoll: React.FC = () => {
                 title,
                 description,
                 end_date: endDate,
-                options: options.filter(option => option.trim()),
+                options: options.filter(option => option.trim()).map(text => ({ text })),
             });
             navigate('/');
         } catch (err) {

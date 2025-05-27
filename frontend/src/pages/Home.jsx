@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import {
-    Container,
-    Grid,
-    Card,
-    CardContent,
-    Typography,
-    Button,
-    CircularProgress,
-} from '@mui/material';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useNavigate } from 'react-router-dom';
-import { Poll } from '../types';
 import { pollService } from '../services/api';
 
-const Home: React.FC = () => {
-    const [polls, setPolls] = useState<Poll[]>([]);
+const Home = () => {
+    const [polls, setPolls] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -28,7 +25,6 @@ const Home: React.FC = () => {
                 setLoading(false);
             }
         };
-
         fetchPolls();
     }, []);
 
@@ -53,10 +49,7 @@ const Home: React.FC = () => {
                                 <Typography variant="h6" component="h2">
                                     {poll.title}
                                 </Typography>
-                                <Typography
-                                    color="textSecondary"
-                                    sx={{ mb: 2 }}
-                                >
+                                <Typography color="textSecondary" sx={{ mb: 2 }}>
                                     {poll.description}
                                 </Typography>
                                 <Typography variant="body2" color="textSecondary">

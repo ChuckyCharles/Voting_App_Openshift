@@ -44,7 +44,7 @@ export const pollService = {
         const response = await api.get<Poll>(`/polls/${id}`);
         return response.data;
     },
-    createPoll: async (poll: Omit<Poll, 'id' | 'created_at'>): Promise<Poll> => {
+    createPoll: async (poll: { title: string; description: string; end_date: string; options: { text: string }[] }): Promise<Poll> => {
         const response = await api.post<Poll>('/polls', poll);
         return response.data;
     },
